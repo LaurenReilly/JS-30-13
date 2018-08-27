@@ -43,6 +43,8 @@
   </div>
 
   <script>
+    //runs everytime we use checkSlide but only runs checkSlide once every 20ms so it
+    //doesn't keep firing and cause issues!
     function debounce(func, wait = 20, immediate = true) {
       var timeout;
       return function() {
@@ -57,6 +59,34 @@
         if (callNow) func.apply(context, args);
       };
     }
+
+    const sliderImages = document.querySelectorAll('.slide-in');
+
+    function checkSlide(e){
+      console.log(e);
+      //loop over every image and find when it first "peeks" into view
+      //we can find how far window is scrolled using window.scrollY
+      //but that will give distance at top not bottom so we add window.innerHeight
+      //to make it slide in when image is visible subtract the image height
+      //we want to slide in when image is 50 on screen so we divide by 2
+      sliderImages.forEach(sliderImage => {
+        const slideInAt = (window.scrollY + window.innerHeight) - sliderImage.height /2;
+        //also want it to work when scrolling from bottom to top!
+        //offsetTop tells us how far top of image is from top of window
+        //adding the image height will give us the bottom edge of the img
+        const imageBottom = sliderImage.offsetTop + sliderImage.height;
+        const isHalfShown = slideInAt > sliderImage.offsetTop;
+        //if image offscreen should be hidden again
+        const isNotScrolledPast = window.scrollY < imageBottom;
+        if (isHalfShown && isNotScrolledPast){
+          sliderImage.classList.add('active');
+        } else {
+          sliderImage.classList.remove('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', debounce(checkSlide));
 
   </script>
 
